@@ -86,8 +86,9 @@ StringResponse HandleRequest(StringRequest&& req) {
     };
     
     auto target = req.target();
-    std::string str(target.substr(1).data(), target.size());
-    body = "<strong>Hello, "+str+"</strong>";
+    std::string str(target.substr(1).data(), target.size()-1);
+    // body = "<strong>Hello, "+str+"</strong>";
+    body = "Hello, "+str;
     return text_response(http::status::ok, body);
 
 
