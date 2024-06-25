@@ -62,6 +62,7 @@ StringResponse RequestHandler::HandleRequest(StringRequest&& req) {
                     body = json_loader::GetMapJson(map);
                 } else {
                     body = json_loader::GetErrorMes("mapNotFound", "Map not found");
+                    return text_response(http::status::not_found, body);
                 };
             };
         } else { // если не удается обработать запрос
