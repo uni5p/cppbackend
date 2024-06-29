@@ -10,12 +10,12 @@ StringResponse MakeStringResponse(http::status status, std::string_view body, un
                                 std::string_view content_type /*= ContentType::TEXT_HTML*/ ) { 
     StringResponse response(status, http_version);
     response.set(http::field::content_type, content_type);
-    if(method != http::verb::head) {
+    if (method != http::verb::head) {
         response.body() = body;
-    };
-    if(method != http::verb::get && method != http::verb::head) {
+    }
+    if (method != http::verb::get && method != http::verb::head) {
         response.set(http::field::allow, "GET, HEAD");
-    };
+    }
     response.content_length(body.size());
     response.keep_alive(keep_alive);
     return response;
@@ -40,10 +40,10 @@ StringResponse RequestHandler::HandleRequest(StringRequest&& req) {
     std::string body;
     http::verb method = req.method();
 
-    if(method != http::verb::get && method != http::verb::head) {
+    if (method != http::verb::get && method != http::verb::head) {
         body = "Invalid method";
         return text_response(http::status::method_not_allowed, body);
-    };
+    }
     
     auto target = req.target();
     std::string query(target.substr(1).data(), target.size()-1);
@@ -51,24 +51,24 @@ StringResponse RequestHandler::HandleRequest(StringRequest&& req) {
     auto query_words = SplitQueryLine(query, '/');  
     query_words.resize(10);
 
-    if(query_words[0]=="api"s){
-        if(query_words[1]=="v1"s && query_words[2]=="maps"s){
-            if(query_words[3].empty()){ // Если запрос  - список карт
+    if (query_words[0] == "api"s){
+        if (query_words[1] == "v1"s && query_words[2] == "maps"s){
+            if (query_words[3].empty()){ // Если запрос  - список карт
                 body = json_loader::GetMapsJson(game_.GetMaps());
             } else { // Если запрос  - описание карты
                 std::string map_id = std::string(query_words[3]);
                 auto map = game_.FindMap(model::Map::Id{map_id});
-                if(map){
+                if (map){
                     body = json_loader::GetMapJson(map);
                 } else {
                     body = json_loader::GetErrorMes("mapNotFound", "Map not found");
                     return text_response(http::status::not_found, body);
-                };
-            };
+                }
+            }
         } else { // если не удается обработать запрос
             body = json_loader::GetErrorMes("badRequest", "Bad request");
             return text_response(http::status::bad_request, body);
-        };
+        }
 
     }  
     // body = "<strong>Hello, "+str+"</strong>";
@@ -78,22 +78,3 @@ StringResponse RequestHandler::HandleRequest(StringRequest&& req) {
 
 
 }  // namespace http_handler
-/*
-        // Если запрос  - список карт
-        if(query=="api/v1/maps"s){
-            body = json_loader::GetMapsJson(game_.GetMaps());
-        } else if(query.substr(0,12)=="api/v1/maps/"s && query_words.size()==4){
-        // Если запрос  - описание карты
-            std::string map_id = std::string(query_words[3]);
-            auto map = game_.FindMap(model::Map::Id{map_id});
-            if(map){
-                body = json_loader::GetMapJson(map);
-            } else {
-                body = json_loader::GetErrorMes("mapNotFound", "Map not found");
-            };
-        } else {
-            body = json_loader::GetErrorMes("badRequest", "Bad request");
-            return text_response(http::status::bad_request, body);
-
-        };
-*/

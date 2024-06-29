@@ -19,45 +19,44 @@ int GetValue(const boost::json::value& value, const string& key ){
     return static_cast<int>(value.as_object().at(key).as_int64());
 }
 
-void AddRoads(model::Map& map, boost::json::array& jroads){
-    for(auto& jroad : jroads){
-        bool horizontal_road = jroad.as_object().contains("x1");
-        if(horizontal_road){
-            model::Road road(model::Road::HORIZONTAL
-            , {GetValue(jroad, "x0"), GetValue(jroad, "y0")}
-            , GetValue(jroad, "x1"));
-            map.AddRoad(move(road));
+void AddRoads(model::Map& map, boost::json::array& roads){
+    for(const auto& road : roads){
+        bool horizontal_road = road.as_object().contains("x1");
+        if (horizontal_road){
+            model::Road road_model(model::Road::HORIZONTAL
+            , {GetValue(road, "x0"), GetValue(road, "y0")}
+            , GetValue(road, "x1"));
+            map.AddRoad(move(road_model));
         } else {
-            model::Road road(model::Road::VERTICAL
-            , {GetValue(jroad, "x0"), GetValue(jroad, "y0")}
-            , GetValue(jroad, "y1"));
-            map.AddRoad(move(road));
-        };
-    };
+            model::Road road_model(model::Road::VERTICAL
+            , {GetValue(road, "x0"), GetValue(road, "y0")}
+            , GetValue(road, "y1"));
+            map.AddRoad(move(road_model));
+        }
+    }
 }
 
 
-void AddBuildings(model::Map& map, boost::json::array& jbuildings){
-    for(auto& jbuilding : jbuildings){
-        model::Building building(
-            { {GetValue(jbuilding, "x"), GetValue(jbuilding, "y")}
-            , {GetValue(jbuilding, "w"), GetValue(jbuilding, "h")}}
+void AddBuildings(model::Map& map, boost::json::array& buildings){
+    for(const auto& building : buildings){
+        model::Building building_model(
+            { {GetValue(building, "x"), GetValue(building, "y")}
+            , {GetValue(building, "w"), GetValue(building, "h")}}
         );
-        map.AddBuilding(move(building));
-    };
-        
+        map.AddBuilding(move(building_model));
+    }
 }
 
-void AddOffices(model::Map& map, boost::json::array& joffices){
+void AddOffices(model::Map& map, boost::json::array& offices){
     using IdOffice = util::Tagged<std::string, model::Office>;
-    for(auto& joffice : joffices){
-        std::string id =  joffice.at("id").get_string().c_str();
-        model::Office office(IdOffice(id)
-            , {GetValue(joffice, "x"), GetValue(joffice, "y")}
-            , {GetValue(joffice, "offsetX"), GetValue(joffice, "offsetY")}
+    for(const auto& office : offices){
+        std::string id =  office.at("id").get_string().c_str();
+        model::Office office_model(IdOffice(id)
+            , {GetValue(office, "x"), GetValue(office, "y")}
+            , {GetValue(office, "offsetX"), GetValue(office, "offsetY")}
         );
-        map.AddOffice(move(office));
-    };
+        map.AddOffice(move(office_model));
+    }
 }
 
 model::Game LoadGame(const std::filesystem::path& json_path) {
@@ -69,6 +68,9 @@ model::Game LoadGame(const std::filesystem::path& json_path) {
     model::Game game;
 
     std::ifstream in_file(json_path);
+    if (!in_file){
+        throw std::runtime_error("Can't open config file: "s + json_path.c_str());
+    };
     std::ostringstream sstr;
     sstr << in_file.rdbuf();
 
@@ -85,7 +87,7 @@ model::Game LoadGame(const std::filesystem::path& json_path) {
         AddOffices(map, jmap.as_object().at("offices").as_array());
 
         game.AddMap(move(map));
-    };  
+    }
 
 
     return game;
@@ -98,7 +100,7 @@ std::string GetMapsJson(const std::vector<model::Map>& maps){
         obj["id"] = *map.GetId();
         obj["name"] = map.GetName();
         arr.emplace_back(std::move(obj));
-    };
+    }
     return serialize(arr);
 }
 
@@ -110,13 +112,13 @@ boost::json::array GetRoadsArr(const model::Map::Roads & roads){
         auto end = road.GetEnd();
         obj["x0"] = start.x;
         obj["y0"] = start.y;
-        if(road.IsHorizontal()){
+        if (road.IsHorizontal()){
             obj["x1"] = end.x;
         } else {
             obj["y1"] = end.y;
-        };
+        }
         res.emplace_back(std::move(obj));
-    };
+    }
     return res;
 }
 
@@ -130,7 +132,7 @@ boost::json::array GetBuildingsArr(const model::Map::Buildings & buildings){
         obj["w"] = bounds.size.width;
         obj["h"] = bounds.size.height;
         res.emplace_back(std::move(obj));
-    };
+    }
     return res;
 }
 
@@ -146,7 +148,7 @@ boost::json::array GetOfficesArr(const model::Map::Offices & offices){
         obj["offsetX"] = offset.dx;
         obj["offsetY"] = offset.dy;
         res.emplace_back(std::move(obj));
-    };
+    }
     return res;
 }
 

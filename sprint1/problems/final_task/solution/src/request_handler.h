@@ -43,7 +43,7 @@ public:
 private:
     model::Game& game_;
 
-    StringResponse HandleRequest(StringRequest&& req) ;    
+    StringResponse HandleRequest(StringRequest&& req);    
 
 
 };

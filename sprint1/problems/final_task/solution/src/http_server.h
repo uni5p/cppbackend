@@ -52,9 +52,9 @@ private:
     HttpRequest request_;
 
     void Read();
-    void OnRead(beast::error_code ec, [[maybe_unused]] std::size_t bytes_read) ;
-    void OnWrite(bool close, beast::error_code ec, [[maybe_unused]] std::size_t bytes_written) ;
-    void Close() ;
+    void OnRead(beast::error_code ec, [[maybe_unused]] std::size_t bytes_read);
+    void OnWrite(bool close, beast::error_code ec, [[maybe_unused]] std::size_t bytes_written);
+    void Close();
 
     // Обработку запроса делегируем подклассу
     virtual void HandleRequest(HttpRequest&& request) = 0;
