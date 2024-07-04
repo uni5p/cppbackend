@@ -30,15 +30,15 @@ void RunWorkers(unsigned n, const Fn& fn) {
 }  // namespace
 
 int main(int argc, const char* argv[]) {
-    // if (argc != 3) {
-    //     std::cerr << "Usage: game_server <game-config-json> <path-static-files>"sv << std::endl;
-    //     return EXIT_FAILURE;
-    // }
+    if (argc != 3) {
+        std::cerr << "Usage: game_server <game-config-json> <path-static-files>"sv << std::endl;
+        return EXIT_FAILURE;
+    }
     try {
-        // std::string config_file(argv[1]);
-        // std::string static_content_path(argv[2]);
-        std::string config_file("/home/anton/sprint2/tema1/3_static_content/data/config.json");
-        std::string static_content_path("/home/anton/sprint2/tema1/3_static_content/static");
+        std::string config_file(argv[1]);
+        std::string static_content_path(argv[2]);
+        // std::string config_file("/home/anton/sprint2/tema1/3_static_content/data/config.json");
+        // std::string static_content_path("/home/anton/sprint2/tema1/3_static_content/static");
         // 1. Загружаем карту из файла и построить модель игры
         model::Game game = json_loader::LoadGame(config_file);
 
