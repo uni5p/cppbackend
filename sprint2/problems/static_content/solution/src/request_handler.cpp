@@ -154,7 +154,7 @@ ResponseValue MakeFileResponse(std::string query, const fs::path& static_content
 
 ResponseValue RequestHandler::HandleRequest(StringRequest&& req) {
     const auto text_response = [&req](http::status status, std::string_view text) {
-        return MakeStringResponse(status, text, req.version(), req.keep_alive(), req.method(), ContentType::TEXT_HTML);
+        return MakeStringResponse(status, text, req.version(), req.keep_alive(), req.method()); //  ContentType::TEXT_HTML
     };
 
     std::string body;
