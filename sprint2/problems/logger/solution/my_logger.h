@@ -67,7 +67,7 @@ public:
     void LogImpl(std::ostream& out, const T0& v0, const Ts&... args){
         using namespace std::literals;
         out << v0;
-        (..., (out << ", "sv << args));
+        (..., (out << args)); //  << " "sv
     }
     
     // Выведите в поток все аргументы.
