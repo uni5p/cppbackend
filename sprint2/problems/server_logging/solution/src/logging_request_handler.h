@@ -75,7 +75,7 @@ private:
         json::value custom_data{
               {"ip"s, end_point}
             , {"URI"s, uri}
-            , {"metod"s, GetNameMetod(req.method())}
+            , {"method"s, GetNameMetod(req.method())}
         };
         BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, custom_data)
                                 << "request received"sv;
