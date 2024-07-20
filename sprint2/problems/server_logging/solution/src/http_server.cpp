@@ -3,10 +3,26 @@
 #include <boost/asio/dispatch.hpp>
 #include <iostream>
 
+#include <boost/log/trivial.hpp>     // для BOOST_LOG_TRIVIAL
+#include <boost/log/utility/setup/console.hpp>
+#include <boost/log/utility/manipulators/add_value.hpp>
+#include <boost/json.hpp>
+namespace json = boost::json;
+namespace logging = boost::log;
+BOOST_LOG_ATTRIBUTE_KEYWORD(additional_data, "AdditionalData", json::value)
+
+
 namespace http_server {
 
 void ReportError(beast::error_code ec, std::string_view what) {
-    std::cerr << what << ": "sv << ec.message() << std::endl;
+    // std::cerr << what << ": "sv << ec.message() << std::endl;
+    json::value custom_data{
+          {"code"s, ec.value()}
+        , {"text"s, ec.message()}
+        , {"where"s, what}
+    };
+    BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, custom_data)
+                            << "error"sv;
 }
 
 void SessionBase::Run() {

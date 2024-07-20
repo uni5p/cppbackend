@@ -8,13 +8,18 @@
 
 #include "json_loader.h"
 #include "request_handler.h"
+#include "logging_request_handler.h"
+
 #include "boost_log.h"   
-// #include <boost/date_time.hpp>
 #include <boost/log/trivial.hpp>     // для BOOST_LOG_TRIVIAL
+#include <boost/log/utility/setup/console.hpp>
+#include <boost/log/utility/manipulators/add_value.hpp>
+#include <boost/json.hpp>
+namespace json = boost::json;
+namespace logging = boost::log;
+// #include <boost/date_time.hpp>
 // #include <boost/log/core.hpp>        // для logging::core
 // #include <boost/log/expressions.hpp> // для выражения, задающего фильтр
-// #include <boost/json/src.hpp>
-// namespace json = boost::json;
 
 // BOOST_LOG_ATTRIBUTE_KEYWORD(line_id, "LineID", unsigned int)
 // BOOST_LOG_ATTRIBUTE_KEYWORD(timestamp, "TimeStamp", boost::posix_time::ptime)
@@ -42,7 +47,6 @@ void RunWorkers(unsigned n, const Fn& fn) {
 }  // namespace
 
 int main(int argc, const char* argv[]) {
-    BOOST_LOG_TRIVIAL(trace) << "Сообщение уровня trace"sv;
     if (argc != 3) {
         std::cerr << "Usage: game_server <game-config-json> <path-static-files>"sv << std::endl;
         return EXIT_FAILURE;
@@ -63,26 +67,25 @@ int main(int argc, const char* argv[]) {
         // 3. Добавляем асинхронный обработчик сигналов SIGINT и SIGTERM
         net::signal_set signals(ioc, SIGINT, SIGTERM);
         signals.async_wait([&ioc](const sys::error_code& ec, [[maybe_unused]] int signal_number) {
-            if (!ec) {
-                ioc.stop();
-            }
+            if (!ec) {ioc.stop();}
         });
         // 4. Создаём обработчик HTTP-запросов и связываем его с моделью игры
         http_handler::RequestHandler handler{game, static_content_path};
+        log_handler::LoggingRequestHandler logging_handler{handler};
 
         // 5. Запустить обработчик HTTP-запросов, делегируя их обработчику запросов
         const auto address = net::ip::make_address("0.0.0.0");
         constexpr net::ip::port_type port = 8080;
-        // http_server::ServeHttp(ioc, {address, port}, [](auto&& req, auto&& sender) {
-        //     sender(HandleRequest(std::forward<decltype(req)>(req)));
-        // });
 
-        http_server::ServeHttp(ioc, {address, port}, [&handler](auto&& req, auto&& send) {
-            handler(std::forward<decltype(req)>(req), std::forward<decltype(send)>(send));
+        http_server::ServeHttp(ioc, {address, port}, [&logging_handler](auto&& end_point, auto&& req, auto&& send) {
+            logging_handler(std::forward<decltype(end_point)>(end_point), std::forward<decltype(req)>(req), std::forward<decltype(send)>(send));
         });
 
         // Эта надпись сообщает тестам о том, что сервер запущен и готов обрабатывать запросы
-        std::cout << "Server has started..."sv << std::endl;
+        // std::cout << "Server has started..."sv << std::endl;
+        json::value custom_data{{"port"s, port}, {"address"s, address.to_string()}};
+        BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, custom_data)
+                                << "server started"sv;
 
         // 6. Запускаем обработку асинхронных операций
         RunWorkers(std::max(1u, num_threads), [&ioc] {
@@ -92,8 +95,8 @@ int main(int argc, const char* argv[]) {
         std::cerr << ex.what() << std::endl;
         return EXIT_FAILURE;
     }
-    // json::value custom_data{{"code"s, 0}};
-    BOOST_LOG_TRIVIAL(info) // << logging::add_value(additional_data, custom_data)
+    json::value custom_data{{"code"s, 0}};
+    BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, custom_data)
                             << "server exited"sv;
 
 }

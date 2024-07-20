@@ -6,7 +6,7 @@
 #include <boost/log/utility/setup/console.hpp>
 #include <boost/log/utility/setup/common_attributes.hpp>
 #include <boost/log/utility/manipulators/add_value.hpp>
-#include <boost/json/src.hpp>
+#include <boost/json.hpp>
 
 
 
@@ -30,24 +30,6 @@ BOOST_LOG_ATTRIBUTE_KEYWORD(timestamp, "TimeStamp", boost::posix_time::ptime)
 BOOST_LOG_ATTRIBUTE_KEYWORD(additional_data, "AdditionalData", json::value)
 
 void MyFormatter(logging::record_view const& rec, logging::formatting_ostream& strm) {
-
-    // Момент времени приходится вручную конвертировать в строку.
-    // Для получения истинного значения атрибута нужно добавить
-    // разыменование. 
-    // auto ts = *rec[timestamp];
-    // strm << "{\"timestamp\":\"" << to_iso_extended_string(ts) << "\"";
-
-
-    // // Выводим данные в формате json
-    // auto data = rec[additional_data];
-    // if (data){
-    //     strm << ",\"data\":"  << data;
-    // }
-
-    // // Выводим само сообщение.
-    // strm << ",\"message\":\"" << rec[logging::expressions::smessage] << "\"}";
-    // // strm << rec[logging::expressions::smessage];
-
     // Момент времени     
     auto ts = *rec[timestamp];
     json::value log_record{{"timestamp"s, to_iso_extended_string(ts)}};
@@ -57,6 +39,7 @@ void MyFormatter(logging::record_view const& rec, logging::formatting_ostream& s
     if (data){
         log_record.as_object().emplace("data"s, *data);
     }
+
     // Добавляем само сообщение.
     log_record.as_object().emplace("message", *rec[logging::expressions::smessage]);
 

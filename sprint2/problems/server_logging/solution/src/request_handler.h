@@ -45,25 +45,18 @@ public:
     template <typename Body, typename Allocator, typename Send>
     void operator()(http::request<Body, http::basic_fields<Allocator>>&& req, Send&& send) {
         // Обработать запрос request и отправить ответ, используя send
-        // auto target = req.target();
-        // std::string query(target.substr(1).data(), target.size()-1);
         auto response = HandleRequest(std::move(req));
         if (std::holds_alternative<StringResponse>(response)) {
             send(std::get<StringResponse>(response));
         } else {
             send(std::get<FileResponse>(response));
         }
-        // if (query.substr(0, 3) == "api"sv) {
-        // } else (
-            // send(HandleRequestFile(std::move(req)));
-        // )
     }
 
 private:
     model::Game& game_;
     std::filesystem::path static_content_path_;
     ResponseValue HandleRequest(StringRequest&& req);    
-    // FileResponse HandleRequestFile(StringRequest&& req);    
 };
 
 }  // namespace http_handler

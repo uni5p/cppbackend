@@ -23,6 +23,8 @@ StringResponse MakeStringResponse(http::status status, std::string_view body, un
                                 std::string_view content_type /*= ContentType::TEXT_HTML указал в request_handler.h*/ ) { 
     StringResponse response(status, http_version);
     response.set(http::field::content_type, content_type);
+    // auto test_base = response.base().empty();
+    // auto test_content_type = response.base().at(http::field::content_type);
     if (method != http::verb::head) {
         response.body() = body;
     }
@@ -31,6 +33,7 @@ StringResponse MakeStringResponse(http::status status, std::string_view body, un
     }
     response.content_length(body.size());
     response.keep_alive(keep_alive);
+    // std::string(response.base().at(http::field::content_type));
     return response;
 }
 
@@ -147,7 +150,6 @@ ResponseValue MakeFileResponse(std::string query, const fs::path& static_content
     // Метод prepare_payload заполняет заголовки Content-Length и Transfer-Encoding
     // в зависимости от свойств тела сообщения
     res.prepare_payload();
-
     return res;
 
 }

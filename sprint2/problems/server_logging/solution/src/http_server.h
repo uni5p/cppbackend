@@ -45,6 +45,9 @@ protected:
                               self->OnWrite(safe_response->need_eof(), ec, bytes_written);
                           });
     }
+    tcp::endpoint GetRemoteEndpoint(){
+        return stream_.socket().remote_endpoint();
+    } 
 private:
     // tcp_stream содержит внутри себя сокет и добавляет поддержку таймаутов
     beast::tcp_stream stream_;
@@ -82,7 +85,8 @@ private:
         // Захватываем умный указатель на текущий объект Session в лямбде,
         // чтобы продлить время жизни сессии до вызова лямбды.
         // Используется generic-лямбда функция, способная принять response произвольного типа
-        request_handler_(std::move(request), [self = this->shared_from_this()](auto&& response) {
+        request_handler_(SessionBase::GetRemoteEndpoint().address().to_string()
+        , std::move(request), [self = this->shared_from_this()](auto&& response) {
             self->Write(std::move(response));
         });
     }
