@@ -69,16 +69,16 @@ void LogServerExited(){
 }  // namespace
 
 int main(int argc, const char* argv[]) {
-    // if (argc != 3) {
-    //     std::cerr << "Usage: game_server <game-config-json> <path-static-files>"sv << std::endl;
-    //     return EXIT_FAILURE;
-    // }
+    if (argc != 3) {
+        std::cerr << "Usage: game_server <game-config-json> <path-static-files>"sv << std::endl;
+        return EXIT_FAILURE;
+    }
     try {
         boost_log::InitBoostLogFilter();
-        // std::string config_file(argv[1]);
-        // std::string static_content_path(argv[2]);
-        std::string config_file("../../data/config.json");
-        std::string static_content_path("../../static");
+        std::string config_file(argv[1]);
+        std::string static_content_path(argv[2]);
+        // std::string config_file("../../data/config.json");
+        // std::string static_content_path("../../static");
         // 1. Загружаем карту из файла и построить модель игры
         model::Game game;
         json_loader::LoadGame(game, config_file);
