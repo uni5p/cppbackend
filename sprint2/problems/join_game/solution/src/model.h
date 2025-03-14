@@ -4,6 +4,7 @@
 #include <vector>
 #include <random>
 #include <sstream>
+#include <memory>
 
 #include "tagged.h"
 
@@ -316,7 +317,7 @@ private:
     std::vector<Map> maps_;
     MapIdToIndex map_id_to_index_;
 
-    std::vector<Dog> dogs_;
+    std::vector<std::unique_ptr<Dog>> dogs_;
     // std::vector<GameSession> sessions_;
     MapToSessions sessions_;
     Players players_;
@@ -326,15 +327,16 @@ private:
 
     const Dog* AddDog(std::string user_name){
         Dog::Id id(dogs_.size());
-        dogs_.emplace_back(user_name, id);
-        return &dogs_[*id];
+        dogs_.push_back(std::make_unique<Dog>(user_name, id));
+        return &GetDog(id);
     }
 
 
     const Dog& GetDog(Dog::Id id) const {
         if(*id < dogs_.size()){
-            return dogs_[*id];
+            return *dogs_[*id];
         }
+        throw;
     }
 
 
