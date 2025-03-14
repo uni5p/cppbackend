@@ -260,7 +260,13 @@ private:
         std::stringstream stream;
         stream << std::hex << generator1_() << generator2_();
         // stream << std::hex << 6654 << 6854654;
-        return Player::Token(stream.str());     
+        auto token_str = stream.str();
+        token_str[0] = '_';
+        token_str[9] = '_';
+        token_str[19] = '_';
+        token_str[31] = '_';
+        return Player::Token(token_str);     
+        // return Player::Token(stream.str());     
     }
 
     std::random_device random_device_;
