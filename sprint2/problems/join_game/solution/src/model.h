@@ -266,7 +266,7 @@ private:
         // token_str[19] = '0';
         // token_str[31] = '0';
         // return Player::Token(token_str);     
-        return Player::Token(stream.str()+'0');     
+        return Player::Token(stream.str());     
     }
 
     std::random_device random_device_;
