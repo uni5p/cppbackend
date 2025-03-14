@@ -261,10 +261,10 @@ private:
         stream << std::hex << generator1_() << generator2_();
         // stream << std::hex << 6654 << 6854654;
         auto token_str = stream.str();
-        token_str[0] = '_';
-        token_str[9] = '_';
-        token_str[19] = '_';
-        token_str[31] = '_';
+        token_str[0] = '0';
+        token_str[9] = '0';
+        token_str[19] = '0';
+        token_str[31] = '0';
         return Player::Token(token_str);     
         // return Player::Token(stream.str());     
     }
