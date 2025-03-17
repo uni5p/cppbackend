@@ -5,6 +5,7 @@
 #include <random>
 #include <sstream>
 #include <memory>
+#include <iomanip>
 
 #include "tagged.h"
 
@@ -258,16 +259,18 @@ private:
 
     Player::Token GetToken(){
         std::stringstream stream;
-        stream << std::hex << generator1_() << generator2_();
-        // stream << std::hex << 6654 << 6854654;
-        // auto token_str = stream.str();
-        // token_str[0] = '0';
-        // token_str[9] = '0';
-        // token_str[19] = '0';
-        // token_str[31] = '0';
-        // return Player::Token(token_str);     
+        // токен это строка из 32 символов полученная из двух 
+        // 64-битных псевдо-случайных чисел в hex-представлении
+        // переведенных в строки по 16 символов с ведущими нулями
+        stream << std::hex << std::right << std::setfill(ZERO_SYMBOL) 
+            << std::setw(LENGHT_HEX_NUMBER) << generator1_() 
+            << std::setw(LENGHT_HEX_NUMBER) << generator2_();
         return Player::Token(stream.str());     
     }
+
+    static const char ZERO_SYMBOL = '0';
+    static const unsigned LENGHT_HEX_NUMBER = 16;
+
 
     std::random_device random_device_;
     // std::random_device random_device2_;
