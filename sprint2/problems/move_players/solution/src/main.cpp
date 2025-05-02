@@ -70,7 +70,7 @@ void LogServerExited(){
 
 int main(int argc, const char* argv[]) {
     if (argc != 3) {
-        std::cerr << "Usage: game_server <game-config-json> <path-static-files>"sv << std::endl;
+        std::cerr   << "Usage: game_server <game-config-json> <path-static-files>"sv << std::endl;
         return EXIT_FAILURE;
     }
     try {
